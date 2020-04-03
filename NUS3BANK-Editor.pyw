@@ -51,8 +51,7 @@ n3beDir = xis.decode(os.path.dirname(os.path.realpath(__file__)))
 # exe dependencies
 vgmstream = u'"' + os.path.join(os.path.join(n3beDir,u'exeLib'), u'vgmstream.exe') + u'"'
 ffmpeg    = u'"' + os.path.join(os.path.join(n3beDir,u'exeLib'), u'ffmpeg.exe')    + u'"'
-dspadpcm  = u'"' + os.path.join(os.path.join(n3beDir,u'exeLib'), u'dspadpcm.exe')  + u'"'
-revb      = u'"' + os.path.join(os.path.join(n3beDir,u'exeLib'), u'revb.exe')      + u'"'
+vgaudio   = u'"' + os.path.join(os.path.join(n3beDir,u'exeLib'), u'VGAudioCli.exe') + u'"'
 
 # extensions of replacement sounds
 known_ext      = [u'.wav',
@@ -191,26 +190,12 @@ def convert2idsp(replacementSound):
             # lstart   = lstart  *44100/rate
             # lend    = lend    *44100/rate
             # rate = 44100
-
-    # making dsp files
-    wdrevBuild = u''
-    for c in range(chan):
-        cmd1 = vgmstream + u' -l1 -d1 -f0 -1 ' + six.text_type(c) + u' -o "' + os.path.join(folderName,u'tmp.' + six.text_type(c) + u'.wav') + u'" "' + os.path.join(folderName,u'tmp'+ext) + u'"'
-        cmd2 = dspadpcm + u' -e "' + os.path.join(folderName,u'tmp.' + six.text_type(c) + u'.wav') + u'" "' + os.path.join(folderName,u'tmp.' + six.text_type(c) + u'.dsp') + u'"'
-        wdrevBuild += u' "' + os.path.join(folderName,u'tmp.' + six.text_type(c) + u'.dsp') + u'"'
-        print (cmd1)
-        if subprocess.call(xis.encode(cmd1)):
-            tkMessageBox.showerror(appName,u'Conversion script to IDSP failed with ' + replacementSound + u'\nThe following command failed:\n' + cmd1)
-            return
-        print (cmd2)
-        if subprocess.call(xis.encode(cmd2)):
-            tkMessageBox.showerror(appName,u'Conversion script to IDSP failed with ' + replacementSound + u'\nThe following command failed:\n' + cmd2)
-            return
+    
     # making idsp
     idsp = os.path.join(folderName,u'new.idsp')
     if os.path.isfile(idsp):
         os.remove(idsp)
-    cmd = revb + u' --build-idsp "' + idsp + u'"' + wdrevBuild
+    cmd = vgaudio + u' -c ' + os.path.join(folderName,u'tmp.bak.wav') + u' ' + idsp
     print (cmd)
     if subprocess.call(xis.encode(cmd)):
         if os.path.isfile(idsp):
@@ -222,16 +207,6 @@ def convert2idsp(replacementSound):
     # removing tmp files
     os.remove(os.path.join(folderName,u'tmp.bak.wav'))
     os.remove(os.path.join(folderName,u'tmp'+ext))
-    for c in range(chan):
-        tmptxt_basename = u'tmp.' + six.text_type(c) + u'.txt'
-        tmptxt = tmptxt_basename
-        if not os.path.isfile(tmptxt): # location of this file is weird, doesn't seem to work the same for everyone
-            tmptxt = os.path.join(n3beDir,tmptxt_basename)
-        if not os.path.isfile(tmptxt):
-            tmptxt = os.path.join(os.path.join(n3beDir,u'exeLib'),tmptxt_basename)
-        os.remove(tmptxt)
-        os.remove(os.path.join(folderName,u'tmp.' + six.text_type(c) + u'.wav'))
-        os.remove(os.path.join(folderName,u'tmp.' + six.text_type(c) + u'.dsp'))
     
     print (u'\nIDSP: '+idsp)
     if not os.path.isfile(idsp):
