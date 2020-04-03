@@ -139,16 +139,6 @@ def getExtension(path):
 
 def getBatSetVal(batString,var):
     return int(batString.decode('utf-8').split(u'set '+var+u'=')[1].split(u'\n')[0])
-    
-def fixLoop(lstart,lend):# fix (from soneek's tempoWrite)
-    sampleAdd = (lstart % 14336 > 0) * 14336 - lstart % 14336
-    return (lstart + sampleAdd, lend + sampleAdd)
-    
-def editor(hasLoop):# for now it will be only that, will get improved over time hopefully (need for a proper pythonic class + good gui)
-    if hasLoop:
-        return not tkMessageBox.askyesno(appName,u'A loop was detected, would you want to disable it?')
-    else:
-        return tkMessageBox.askyesno(appName,u'No loop was detected, would you like your audio sound to loop from the beginning to the end?')
 
 def convert2idsp(replacementSound):
     # making sure there is no remaining tmp files
@@ -189,10 +179,6 @@ def convert2idsp(replacementSound):
     tsamp = getBatSetVal(cmd_output,u'tsamp')
     lstart = 0
     lend  = tsamp-1
-    hasLoop= bool(getBatSetVal(cmd_output,u'loop'))
-    if hasLoop:
-        lstart = getBatSetVal(cmd_output,u'lstart')
-        lend  = getBatSetVal(cmd_output,u'lend')
     # if rate > 44100:
         # cmd = ffmpeg+' -i "'+os.path.join(folderName,'tmp.bak.wav')+'" -r:a 44100 "'+os.path.join(folderName,'tmp44100.wav')+'"'
         # if subprocess.call(cmd):
@@ -205,18 +191,12 @@ def convert2idsp(replacementSound):
             # lstart   = lstart  *44100/rate
             # lend    = lend    *44100/rate
             # rate = 44100
-    lstart,lend=fixLoop(lstart,lend)
-    
-    # maybe do stuff, like adjust vars, add loop, etc. here
-    hasLoop= editor(hasLoop)
-    
+
     # making dsp files
     wdrevBuild = u''
     for c in range(chan):
         cmd1 = vgmstream + u' -l1 -d1 -f0 -1 ' + six.text_type(c) + u' -o "' + os.path.join(folderName,u'tmp.' + six.text_type(c) + u'.wav') + u'" "' + os.path.join(folderName,u'tmp'+ext) + u'"'
         cmd2 = dspadpcm + u' -e "' + os.path.join(folderName,u'tmp.' + six.text_type(c) + u'.wav') + u'" "' + os.path.join(folderName,u'tmp.' + six.text_type(c) + u'.dsp') + u'"'
-        if hasLoop:
-            cmd2 += u' -l' + six.text_type(lstart) + u'-' + six.text_type(lend)
         wdrevBuild += u' "' + os.path.join(folderName,u'tmp.' + six.text_type(c) + u'.dsp') + u'"'
         print (cmd1)
         if subprocess.call(xis.encode(cmd1)):
