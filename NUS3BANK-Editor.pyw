@@ -37,7 +37,7 @@ if sys.executable.endswith(u"pythonw.exe") or sys.executable.endswith(u"pythonw3
     sys.stdout = sys.stdout = None
 
 appVer = u'2.20-pre'
-appName = u"NUS3BANK Editor " + appVer    
+appName = u"NUS3BANK Editor (Taiko Wii U fork) " + appVer    
 
 # you should add a github updater
 # they are pretty easy in python
@@ -582,9 +582,11 @@ def about():
     aboutText += u'\n'
     aboutText += u'\nStarted with love by jam1garner'
     aboutText += u'\nContinued with passion by BlueDan'
+    aboutText += u'\nTaiko Wii U fork by DespairOfHarmony'
     aboutText += u'\n'
     aboutText += u'\nCredits go to :'
     aboutText += u'\n- Soneek who made tools essential for this'
+    aboutText += u'\n- Alex Barney for VGAudio (https://github.com/Thealexbarney/VGAudio)'
     aboutText += u'\n- everyone involved with vgmstream'
     aboutText += u'\n- everyone involved with ffmpeg'
     aboutText += u'\n- everyone who tested this tool and gave feedback!'
